@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@o.sombral — Studio de Conteúdo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06030d;--s1:#0d0818;--s2:#160f22;--s3:#1e1530;
+  --acc:#8b1a1a;--gold:#c8963e;--gold2:#e0aa4a;--red:#cc2200;
+  --text:#ede5ff;--muted:#7a6a8a;--border:#2a1840;--border2:#3a2550;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+
+header{text-align:center;padding:16px 24px 12px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#0e0520 0%,var(--bg) 100%);position:relative}
+header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--acc),var(--gold),transparent)}
+header h1{font-family:'Cinzel',serif;font-size:1.7rem;font-weight:900;background:linear-gradient(135deg,#c8963e 0%,#ff7f50 50%,#c8963e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:5px}
+header p{color:var(--muted);font-size:.7rem;letter-spacing:3px;margin-top:3px;text-transform:uppercase}
+
+.grid{display:grid;grid-template-columns:260px 1fr 310px;gap:12px;padding:12px;height:calc(100vh - 74px)}
+
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.ph{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--s2);flex-shrink:0}
+.ph h2{font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:2.5px;color:var(--gold)}
+.ph p{font-size:.67rem;color:var(--muted);margin-top:3px}
+.pb{flex:1;overflow-y:auto;padding:12px}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.btn{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.8rem;font-family:'Inter',sans-serif;transition:all .18s;letter-spacing:.5px}
+.btn:hover{background:#a82525;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#e0aa4a);color:#0a0005;font-weight:600}
+.btn-gold:hover{filter:brightness(1.1)}
+.btn-sm{padding:6px 10px;font-size:.72rem}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,150,62,.07)}
+.btn-full{width:100%;margin-bottom:7px}
+.btn-green{background:linear-gradient(135deg,#1a6b3a,#22883e);color:#fff}
+.btn-green:hover{filter:brightness(1.15)}
+.btn-audio{background:linear-gradient(135deg,#1a3b6b,#2255aa);color:#fff}
+.btn-audio:hover{filter:brightness(1.15)}
+.btn-ai{background:linear-gradient(135deg,#3b1a6b,#6622cc);color:#fff}
+.btn-ai:hover{filter:brightness(1.15)}
+
+.searchbar{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.82rem;width:100%;margin-bottom:10px;transition:border-color .2s}
+.searchbar:focus{outline:none;border-color:var(--gold)}
+.searchbar::placeholder{color:var(--muted)}
+
+.trend-item{padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:7px;cursor:pointer;transition:all .18s}
+.trend-item:hover{border-color:var(--border2);background:rgba(255,255,255,.02)}
+.trend-item.active{border-color:var(--acc);background:rgba(139,26,26,.1)}
+.trend-item .tt{font-size:.82rem;font-weight:600;margin-bottom:5px;line-height:1.3}
+.trend-item .tm{font-size:.68rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.62rem;font-weight:600;letter-spacing:.5px}
+.badge-hot{background:rgba(200,30,0,.25);color:#ff6655;border:1px solid rgba(200,30,0,.3)}
+.badge-trend{background:rgba(200,150,62,.18);color:var(--gold);border:1px solid rgba(200,150,62,.3)}
+.badge-new{background:rgba(50,150,255,.15);color:#88ccff;border:1px solid rgba(50,150,255,.25)}
+.cat-tag{font-size:.6rem;color:var(--muted);background:var(--s3);padding:2px 7px;border-radius:10px}
+
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--s2);flex-shrink:0}
+.tab{padding:10px 14px;cursor:pointer;font-size:.74rem;color:var(--muted);transition:all .18s;border-bottom:2px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.copy-label{font-size:.67rem;color:var(--gold);letter-spacing:2px;margin-bottom:8px;font-family:'Cinzel',serif}
+.copy-box{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:.85rem;line-height:1.65;min-height:90px;white-space:pre-wrap;color:var(--text)}
+.copy-actions{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;align-items:center}
+.hashtag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.htag{background:rgba(139,26,26,.18);color:#dd5555;padding:3px 10px;border-radius:20px;font-size:.72rem;cursor:pointer;border:1px solid rgba(139,26,26,.3);transition:all .15s}
+.htag:hover{background:rgba(139,26,26,.35)}
+
+/* IMAGE PANEL */
+.canvas-wrap{display:flex;justify-content:center;margin-bottom:10px;position:relative}
+#previewCanvas{border:1px solid var(--border);border-radius:6px;display:block}
+.ai-badge{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#3b1a6b,#6622cc);color:#fff;font-size:.6rem;padding:2px 10px;border-radius:10px;letter-spacing:1px;font-weight:600;display:none}
+.ai-badge.show{display:block}
+
+.ctrl-group{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.ctrl-label{font-size:.68rem;color:var(--muted);letter-spacing:.5px}
+select,.slider,input[type=color]{background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px;width:100%;font-size:.78rem}
+select:focus,input:focus{outline:none;border-color:var(--gold)}
+.slider{padding:5px 0;accent-color:var(--gold)}
+input[type=color]{padding:3px;height:32px;cursor:pointer}
+
+/* API KEY SECTION */
+.api-section{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:10px}
+.api-section-title{font-size:.65rem;color:var(--gold);letter-spacing:1.5px;font-family:'Cinzel',serif;margin-bottom:6px}
+.api-input{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:.75rem;width:100%;font-family:monospace;letter-spacing:.5px}
+.api-input:focus{outline:none;border-color:var(--gold)}
+.api-input::placeholder{color:var(--muted);font-family:'Inter',sans-serif;letter-spacing:0}
+.api-note{font-size:.62rem;color:var(--muted);margin-top:5px;line-height:1.4}
+
+/* AUDIO SECTION */
+.audio-section{background:rgba(26,59,107,.15);border:1px solid rgba(34,85,170,.2);border-radius:8px;padding:10px;margin-top:12px}
+.audio-title{font-size:.67rem;color:#88ccff;letter-spacing:1.5px;font-family:'Cinzel',serif;margin-bottom:8px}
+.voice-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.voice-row select{flex:1;font-size:.75rem}
+.audio-player{margin-top:8px;width:100%;height:36px;border-radius:6px}
+audio{width:100%;border-radius:6px;background:var(--s2)}
+
+/* LOADING OVERLAY */
+.loading-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(6,3,13,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;z-index:10;display:none}
+.loading-overlay.show{display:flex}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px}
+.loading-text{font-size:.75rem;color:var(--gold);letter-spacing:1px;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin-icon{to{transform:rotate(360deg)}}
+.spinning{animation:spin-icon .8s linear infinite;display:inline-block}
+
+/* SCORE */
+.score-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.score-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--gold));border-radius:2px;transition:width .5s}
+
+.divider{border:none;border-top:1px solid var(--border);margin:10px 0}
+.empty{color:var(--muted);text-align:center;padding:28px 10px;font-size:.82rem;line-height:1.6}
+
+#toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--gold);border-radius:8px;padding:10px 18px;font-size:.82rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+#toast.show{opacity:1}
+
+/* GEMINI IMAGE BUTTON */
+.btn-gemini{background:linear-gradient(135deg,#1a5296,#2575e8);color:#fff}
+.btn-gemini:hover{filter:brightness(1.15)}
+
+/* TEXT PANEL (below canvas when AI image active) */
+.text-panel-box{background:rgba(200,150,62,.07);border:1px solid rgba(200,150,62,.22);border-radius:8px;padding:10px;margin-bottom:10px}
+.text-panel-title{font-size:.65rem;color:var(--gold);letter-spacing:1.5px;font-family:'Cinzel',serif;margin-bottom:7px}
+.text-panel-copy{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:.8rem;line-height:1.6;white-space:pre-wrap;color:var(--text);max-height:130px;overflow-y:auto}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⬡ @o.sombral</h1>
+  <p>Studio de Conteúdo Luciferiano · Instagram</p>
+</header>
+
+<div class="grid">
+
+  <!-- ═══ TRENDS PANEL ═══ -->
+  <div class="panel">
+    <div class="ph"><h2>📡 TRENDS DO NICHO</h2><p>Clique em uma trend para gerar o conteúdo</p></div>
+    <div class="pb">
+      <input class="searchbar" type="text" placeholder="🔍 Filtrar por tema..." oninput="filterTrends(this.value)">
+      <button class="btn btn-gold btn-full" onclick="searchWeb()"><span id="refreshIcon">🔄</span> Buscar Novas Trends</button>
+      <div id="trendList"></div>
+    </div>
+  </div>
+
+  <!-- ═══ COPY PANEL ═══ -->
+  <div class="panel">
+    <div class="ph"><h2>✍️ COPY & GANCHO</h2><p id="selectedLabel">Nenhuma trend selecionada</p></div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('hook')">🪝 Gancho</div>
+      <div class="tab" onclick="switchTab('legenda')">📝 Legenda</div>
+      <div class="tab" onclick="switchTab('hashtags')">🏷️ Hashtags</div>
+      <div class="tab" onclick="switchTab('score')">📊 Análise</div>
+    </div>
+    <div class="pb">
+
+      <!-- GANCHO -->
+      <div id="tab-hook" class="tab-content active">
+        <div class="copy-label">TEXTO GANCHO — 3 PRIMEIROS SEGUNDOS</div>
+        <div class="copy-box" id="hookText"><span style="color:var(--muted);font-style:italic">← Selecione uma trend para gerar o gancho</span></div>
+        <div class="copy-actions">
+          <button class="btn btn-sm" onclick="copyText('hookText')">📋 Copiar</button>
+          <button class="btn btn-sm btn-outline" onclick="nextHook()">🔀 Outro Modelo</button>
+          <button class="btn btn-sm btn-gold" onclick="applyToImage()">🖼️ Aplicar na Imagem</button>
+        </div>
+        <hr class="divider">
+        <div class="copy-label">VARIAÇÕES DISPONÍVEIS</div>
+        <div id="hookVariants" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+
+      <!-- LEGENDA -->
+      <div id="tab-legenda" class="tab-content">
+        <div class="copy-label">LEGENDA COMPLETA</div>
+        <div class="copy-box" id="legendaText" style="min-height:200px"><span style="color:var(--muted);font-style:italic">← Selecione uma trend para gerar a legenda</span></div>
+        <div class="copy-actions">
+          <button class="btn btn-sm" onclick="copyText('legendaText')">📋 Copiar Legenda</button>
+          <button class="btn btn-sm btn-outline" onclick="regenerateLegenda()">🔀 Regenerar</button>
+        </div>
+
+        <!-- AUDIO SECTION -->
+        <div class="audio-section">
+          <div class="audio-title">🎙️ NARRAÇÃO DA LEGENDA</div>
+          <div class="voice-row">
+            <select id="voiceSelect">
+              <option value="Charon">Charon — Dramática (Recomendada)</option>
+              <option value="Fenrir">Fenrir — Masculina Intensa</option>
+              <option value="Kore">Kore — Feminina Mística</option>
+              <option value="Aoede">Aoede — Suave Profunda</option>
+              <option value="Puck">Puck — Enérgica</option>
+            </select>
+          </div>
+          <button class="btn btn-audio btn-full" onclick="generateAudio()" id="audioBtn">
+            🎵 Gerar e Baixar Áudio (MP3)
+          </button>
+          <div id="audioPlayerWrap" style="display:none">
+            <audio id="audioPlayer" controls class="audio-player"></audio>
+          </div>
+          <div class="api-note">⚠️ Usa sua chave Gemini API (inserida no painel da imagem)</div>
+        </div>
+      </div>
+
+      <!-- HASHTAGS -->
+      <div id="tab-hashtags" class="tab-content">
+        <div class="copy-label">HASHTAGS RECOMENDADAS</div>
+        <div id="hashtagList" class="hashtag-wrap"><span style="color:var(--muted);font-size:.82rem">← Selecione uma trend</span></div>
+        <div class="copy-actions" style="margin-top:14px">
+          <button class="btn btn-sm" onclick="copyHashtags()">📋 Copiar Todas</button>
+        </div>
+        <hr class="divider">
+        <div class="copy-label">HASHTAGS FIXAS DO PERFIL</div>
+        <div class="hashtag-wrap">
+          <span class="htag">#osombral</span><span class="htag">#luciferianismo</span>
+          <span class="htag">#ocultismo</span><span class="htag">#magiasombria</span>
+          <span class="htag">#caminhodasombra</span><span class="htag">#esoterismo</span>
+        </div>
+      </div>
+
+      <!-- ANÁLISE -->
+      <div id="tab-score" class="tab-content">
+        <div class="copy-label">ANÁLISE DE ENGAJAMENTO</div>
+        <div id="scorePanel"><div class="empty">← Selecione uma trend para ver a análise</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ IMAGE PANEL ═══ -->
+  <div class="panel">
+    <div class="ph"><h2>🖼️ IMAGEM 9:16</h2><p>Flux Realism · Google Gemini · Download limpo sem texto</p></div>
+    <div class="pb">
+
+      <!-- Canvas Preview -->
+      <div class="canvas-wrap">
+        <div style="position:relative">
+          <canvas id="previewCanvas" width="216" height="384"></canvas>
+          <div class="ai-badge" id="aiBadge">✨ FLUX AI</div>
+          <div class="loading-overlay" id="imgLoading">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">Gerando imagem<br>com Gemini AI...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Panel (visível quando AI image ativa) -->
+      <div id="textPanel" style="display:none">
+        <div class="text-panel-box">
+          <div class="text-panel-title">📝 TEXTO DO REEL — COPIE SEPARADO</div>
+          <div class="text-panel-copy" id="panelHookText"></div>
+          <div class="copy-actions" style="margin-top:7px">
+            <button class="btn btn-sm" onclick="copyPanelText()">📋 Copiar Texto</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gemini API Key -->
+      <div class="api-section">
+        <div class="api-section-title">🔑 GEMINI API KEY</div>
+        <input class="api-input" type="password" id="geminiKey" placeholder="Cole sua chave API aqui...">
+        <div class="api-note">Usada para áudio (TTS) e geração de imagem com Google Gemini. <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold)">Pegar chave →</a></div>
+      </div>
+
+      <!-- AI Image Generation — dois botões -->
+      <div style="display:flex;gap:7px;margin-bottom:7px">
+        <button class="btn btn-ai" style="flex:1;font-size:.74rem" onclick="generateAIImage()" id="aiBtn">
+          🎨 Flux Realism<br><span style="font-size:.65rem;opacity:.8">(Grátis, sem chave)</span>
+        </button>
+        <button class="btn btn-gemini" style="flex:1;font-size:.74rem" onclick="generateGeminiImage()" id="geminiImgBtn">
+          🤖 Google Gemini<br><span style="font-size:.65rem;opacity:.8">↗ Abre + copia prompt</span>
+        </button>
+      </div>
+      <button class="btn btn-outline btn-full" onclick="clearAIImage()" id="clearAiBtn" style="display:none;margin-bottom:7px">
+        ✕ Voltar para canvas manual
+      </button>
+
+      <hr class="divider" style="margin:6px 0 10px">
+
+      <!-- Canvas Controls -->
+      <div class="ctrl-group">
+        <label class="ctrl-label">ESTILO DE FUNDO (CANVAS)</label>
+        <select id="bgStyle" onchange="renderImage()">
+          <option value="cathedral">Catedral das Sombras</option>
+          <option value="hellfire">Chama do Inferno</option>
+          <option value="void">Vazio Eterno</option>
+          <option value="sigil">Círculo de Convocação</option>
+          <option value="abyss">Abismo Ancestral</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">INTENSIDADE DO BRILHO</label>
+        <input type="range" class="slider" id="glowIntensity" min="10" max="100" value="65" oninput="renderImage()">
+      </div>
+      <div class="ctrl-group" style="display:flex;flex-direction:row;gap:8px;align-items:flex-end">
+        <div style="flex:1">
+          <label class="ctrl-label">COR DO BRILHO</label>
+          <input type="color" id="glowColor" value="#bb2200" oninput="renderImage()">
+        </div>
+        <div style="flex:1">
+          <label class="ctrl-label">POSIÇÃO DO TEXTO</label>
+          <select id="textPos" onchange="renderImage()">
+            <option value="bottom">Inferior</option>
+            <option value="center">Centro</option>
+            <option value="top">Superior</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-gold btn-full" onclick="downloadImage()" id="downloadBtn">⬇️ Baixar Imagem 1080×1920</button>
+      <div id="downloadNote" style="display:none;font-size:.65rem;color:var(--gold);text-align:center;margin:-4px 0 6px;opacity:.8">✓ Imagem limpa, sem texto sobreposto</div>
+      <button class="btn btn-outline btn-full" onclick="renderImage()" style="margin-bottom:0">🔄 Atualizar Preview</button>
+
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// TRENDS DATABASE
+// ═══════════════════════════════════════════
+const TRENDS = [
+  {
+    id:1,title:"Sinais de que Lúcifer já veio até você",cat:"sinais",badge:"hot",score:97,
+    viralScore:{hook:95,legenda:88,visual:92},
+    keys:["sinais","presença","visita","chamado"],
+    hooks:[
+      "LÚCIFER NÃO ESPERA SER INVOCADO.\nEsses são os {N} sinais de que ele já veio até você.\n(explico na legenda 👇)",
+      "Você sentiu isso ultimamente?\nLÚCIFER deixa {N} sinais quando cruza o seu caminho.\nNinguém te conta isso.\n(veja na legenda 👇)",
+      "{N} sinais de que Lúcifer já te visitou sem você perceber.\nO último vai te arrepiar.\n(confira na legenda 👇)"
+    ],
+    legenda:`1️⃣ Sonhos intensos com figuras aladas ou de luz.\n\nVocê acorda com a sensação de que algo mudou dentro de você. Não é pesadelo — é contato.\n\n2️⃣ Uma sede repentina de conhecimento proibido.\n\nLivros, filosofias e caminhos que antes você ignoraria começam a te chamar com urgência.\n\n3️⃣ Sincronicidades que desafiam a lógica.\n\nNúmeros que se repetem. Situações que "coincidem" demais. Mensagens que chegam na hora exata.\n\n4️⃣ A sensação de que você não pertence ao mundo ao seu redor.\n\nSempre foi assim. Mas agora faz sentido.\n\n🔱 Lúcifer não invade. Ele convida.\n\nSe você sentiu esses sinais, pode ser o início do chamado.\n\nSalva esse post. Comenta qual você já sentiu. 👇`,
+    tags:["#luciferianismo","#lucifer","#ocultismo","#espiritualidadesombria","#caminhodasombra","#despertar","#iniciacao","#osombral","#magiasombria","#esoterismo","#sinais","#espiritualidade"]
+  },
+  {
+    id:2,title:"A Chama Negra — o que separa os escolhidos",cat:"conceito",badge:"trend",score:84,
+    viralScore:{hook:82,legenda:86,visual:80},
+    keys:["chama negra","black flame","essência","escolhido"],
+    hooks:[
+      "A CHAMA NEGRA não é um símbolo.\nÉ o que separa os que foram escolhidos dos que nunca vão despertar.\n(verdade na legenda 👇)",
+      "Você tem a Chama Negra dentro de você?\nEsses são os {N} sinais que não mentem.\n(explico na legenda 👇)",
+      "Poucos luciferianistas entendem o que a Chama Negra realmente é.\nEssa é a verdade que mudou minha prática.\n👇"
+    ],
+    legenda:`A Chama Negra é o conceito central do luciferianismo.\n\nNão é metáfora. É a faísca divina que Lúcifer depositou em certas almas antes do tempo.\n\n🔱 Quem tem a Chama Negra:\n\n✦ Sempre se sentiu diferente — não melhor, diferente\n✦ Questiona tudo, inclusive o que foi ensinado como verdade\n✦ Tem atração natural pelo oculto e pelo proibido\n✦ Sente que sua vida tem um propósito ainda não revelado\n✦ Nunca se encaixou em sistemas religiosos convencionais\n\n🔱 O que a Chama Negra não é:\n\nNão é maldade. Não é destruição. Não é culto.\n\nÉ consciência. É autonomia. É fogo interior.\n\nA Chama não pode ser acesa por vontade própria.\n\nEla já estava em você. Ou nunca estará.\n\nSalva esse post se sentiu identificação. 🔥`,
+    tags:["#chamaNegra","#blackFlame","#luciferianismo","#ocultismo","#despertar","#espiritualidade","#osombral","#magiasombria","#esoterismo","#filosofiaSombra","#escolhido"]
+  },
+  {
+    id:3,title:"Pacto luciferiano — o que ninguém ensina",cat:"pratica",badge:"hot",score:93,
+    viralScore:{hook:91,legenda:85,visual:88},
+    keys:["pacto","acordo","ritual","contrato"],
+    hooks:[
+      "Um PACTO com Lúcifer não é o que o cinema te mostrou.\nEsses são os {N} erros que a maioria comete — e nunca percebe.\n(legenda completa 👇)",
+      "Antes de tentar qualquer pacto luciferiano, você PRECISA saber disso.\n{N} verdades que ninguém ensina.\n👇",
+      "O pacto luciferiano tem {N} etapas que 90% das pessoas pulam.\nO resultado? Nada acontece — ou pior.\n(explico na legenda 👇)"
+    ],
+    legenda:`Um pacto luciferiano não é uma venda de alma.\n\nÉ um acordo de crescimento espiritual — um compromisso entre você e a força que Lúcifer representa.\n\n⚠️ Os erros mais comuns:\n\n1️⃣ Tentar o pacto sem purificação prévia\n2️⃣ Pedir resultados materiais sem oferecer desenvolvimento em troca\n3️⃣ Intenção vaga — Lúcifer não age sobre o que você mesmo não sabe querer\n4️⃣ Abandonar a prática antes de 30 dias após o ritual\n5️⃣ Agir por medo ou desespero, não por escolha consciente\n\n🔱 Como funciona um pacto verdadeiro:\n\nVocê define a transformação que busca. Lúcifer oferece o espelho e o caminho. Você caminha.\n\nNão existe atalho. Existe comprometimento.\n\nA transformação vem primeiro. Os resultados externos são consequência.\n\nSalva esse post. Vai precisar. 👇`,
+    tags:["#pacto","#pactoLuciferiano","#luciferianismo","#ritual","#ocultismo","#magiasombria","#osombral","#espiritualidade","#iniciacao","#lucifer","#oculto"]
+  },
+  {
+    id:4,title:"Lúcifer vs Satanás — o erro que invalida tudo",cat:"conceito",badge:"hot",score:95,
+    viralScore:{hook:93,legenda:90,visual:85},
+    keys:["satanas","diferença","confusão","identidade","erro"],
+    hooks:[
+      "LÚCIFER e SATANÁS não são a mesma entidade.\nEsse é o erro que invalida 90% das práticas do ocultismo moderno.\n(explico na legenda 👇)",
+      "A confusão entre Lúcifer e Satanás foi criada pela Igreja.\nEsses são os {N} fatos que a história esconde.\n👇",
+      "Se você ainda acha que Lúcifer = Satanás...\nvocê foi enganado. Aqui está a verdade que mudou tudo pra mim.\n👇"
+    ],
+    legenda:`A Igreja fundiu dois arquétipos completamente distintos.\n\nE isso foi intencional.\n\n🔱 LÚCIFER — O Portador da Luz:\n\n✦ Origem latina: "lux ferre" (portador da luz)\n✦ Arquétipo de iluminação, conhecimento e liberação espiritual\n✦ Nunca foi um demônio nas tradições pré-cristãs\n✦ Presente em textos anteriores ao Cristianismo como estrela da manhã (Vênus)\n\n🔱 SATANÁS — O Adversário:\n\n✦ Origem hebraica: "ha-satan" (o adversário)\n✦ Originalmente um papel ou função, não uma entidade única\n✦ Representa a força que questiona e desafia\n✦ Múltiplas interpretações em diferentes tradições\n\nA fusão foi uma estratégia de controle.\n\nAo demonizar Lúcifer, a Igreja demonizou o próprio conhecimento.\n\nSalva esse post. Compartilha com quem precisa saber. 🔥`,
+    tags:["#lucifer","#satanas","#luciferianismo","#ocultismo","#historia","#verdade","#osombral","#esoterismo","#despertar","#liberdade","#conhecimento"]
+  },
+  {
+    id:5,title:"Você foi escolhido para o caminho sombrio?",cat:"sinais",badge:"hot",score:91,
+    viralScore:{hook:94,legenda:87,visual:90},
+    keys:["escolhido","chamado","destino","caminho","sombrio"],
+    hooks:[
+      "Não é coincidência você estar aqui agora.\nEsses {N} sinais mostram que você foi escolhido para o caminho sombrio.\n(confira na legenda 👇)",
+      "O caminho sombrio não é escolhido. Ele CHAMA.\nE você está ouvindo.\nEsses são os {N} sinais do chamado.\n👇",
+      "Se você sentiu {N} ou mais desses sinais...\nvocê não chegou até o luciferianismo por acaso.\n(descubra na legenda 👇)"
+    ],
+    legenda:`O chamado não é uma coincidência.\n\nÉ uma reconexão com o que você sempre foi.\n\n🔱 Os sinais do chamado:\n\n1️⃣ Sempre se sentiu estrangeiro no mundo ao seu redor\n\n2️⃣ Religião convencional nunca fez sentido — parecia uma prisão disfarçada de conforto\n\n3️⃣ Você é naturalmente atraído pelo que os outros temem ou evitam\n\n4️⃣ Sonhos recorrentes com sombras, asas, figuras de luz ou lugares desconhecidos\n\n5️⃣ Uma sensação persistente de que há algo maior aguardando sua compreensão\n\n6️⃣ Você questiona tudo — especialmente o que foi dito para não questionar\n\n7️⃣ A leitura sobre ocultismo não te assusta. Te faz sentir em casa.\n\nO caminho sombrio não aceita a todos.\n\nMas para quem é chamado, a resistência é inútil.\n\nComente quantos sinais você tem. 👇`,
+    tags:["#chamado","#caminhoSombrio","#luciferianismo","#despertar","#escolhido","#ocultismo","#osombral","#espiritualidade","#iniciacao","#verdade","#sombra"]
+  },
+  {
+    id:6,title:"Qliphoth — a Árvore das Sombras proibida",cat:"conceito",badge:"new",score:80,
+    viralScore:{hook:78,legenda:84,visual:82},
+    keys:["qliphoth","arvore","sephiroth","cabala","sombras"],
+    hooks:[
+      "A Cabala que a maioria estuda é incompleta.\nO que ninguém mostra existe do outro lado: o QLIPHOTH.\n(verdade proibida na legenda 👇)",
+      "QLIPHOTH: a Árvore das Sombras que o ocultismo mainstream tenta esconder.\nEsses são os {N} segredos que você precisa saber.\n👇",
+      "Enquanto todos estudam a Sephiroth...\nos iniciados luciferianistas trabalham com o QLIPHOTH.\nDescubra por quê. 👇"
+    ],
+    legenda:`A Árvore da Vida (Sephiroth) é apenas metade do mapa.\n\nA outra metade é o QLIPHOTH — a Árvore das Sombras.\n\n🔱 O que é o Qliphoth?\n\nÉ o sistema de esferas que representa as forças primordiais do caos, das sombras e da transmutação espiritual profunda.\n\nCada esfera (Qlipha) é governada por uma força:\n\n✦ Lilith / Gamaliel — O feminino sombrio primordial\n✦ Samael / Golachab — A chama destruidora\n✦ Belial / A'arab Zaraq — O adversário que fortalece\n✦ Lúcifer — A chama além da Árvore, antes do início\n\n⚠️ O trabalho qliphótico não é para curiosos.\n\nÉ para quem está disposto a confrontar as sombras que carrega.\n\nMas entender a Árvore das Sombras é essencial para qualquer caminho luciferiano sério.\n\nSalva esse post. O estudo continua. 📚`,
+    tags:["#qliphoth","#arvoreDasSombras","#luciferianismo","#cabala","#ocultismo","#magiasombria","#osombral","#esoterismo","#lilith","#samael","#iniciacao"]
+  },
+  {
+    id:7,title:"Lilith — como trabalhar com ela sem errar",cat:"entidades",badge:"trend",score:86,
+    viralScore:{hook:85,legenda:88,visual:84},
+    keys:["lilith","feminino sombrio","lua negra","gamaliel"],
+    hooks:[
+      "LILITH não é para ser temida.\nEla é para ser ENTENDIDA.\nEsses são os {N} erros que você não pode cometer ao trabalhar com ela.\n👇",
+      "{N} coisas que ninguém te conta sobre trabalhar com LILITH.\nA última mudou completamente minha prática.\n(legenda completa 👇)",
+      "LILITH apareceu para mim antes de eu saber quem ela era.\nEsses são os sinais que ela dá quando quer ser encontrada.\n👇"
+    ],
+    legenda:`Lilith é a primeira força feminina sombria do Qliphoth.\n\nEla governa Gamaliel — a esfera da lua negra.\n\n🔱 Como trabalhar com Lilith:\n\n✦ Ela não responde a quem se aproxima por curiosidade superficial\n✦ O trabalho começa pelo autoconhecimento sombrio — confronte suas próprias sombras primeiro\n✦ Ela revela o que você esconde de si mesmo. Prepare-se para isso.\n✦ Offerings tradicionais: vinho tinto, rosas negras, espelhos, prata\n✦ O melhor momento: lua nova ou minguante, meia-noite\n\n⚠️ O que evitar:\n\nNão convoque Lilith com medo. Ela sente e rejeita.\nNão prometa o que não vai cumprir. Lilith não perdoa.\nNão confunda servidão com devoção — ela exige iguais, não escravos.\n\n🔱 O trabalho com Lilith transforma.\n\nMas apenas quem está pronto para ser destruído e reconstruído.\n\nSalva esse post se trabalha ou quer trabalhar com ela. 🌑`,
+    tags:["#lilith","#luciferianismo","#ocultismo","#lunaNegra","#magiasombria","#osombral","#feminino","#qliphoth","#espiritualidade","#ritual","#entidades"]
+  },
+  {
+    id:8,title:"Despertar luciferiano — os 6 estágios reais",cat:"despertar",badge:"trend",score:88,
+    viralScore:{hook:89,legenda:91,visual:86},
+    keys:["despertar","transformacao","estagios","antes depois","processo"],
+    hooks:[
+      "O despertar luciferiano não é agradável no começo.\nEsses são os {N} estágios que ninguém prepara você para enfrentar.\n(legenda completa 👇)",
+      "Antes do despertar: o que você vai largar.\nDepois do despertar: o que nunca mais volta atrás.\n(veja na legenda 👇)",
+      "Se você está passando por isso agora...\né o despertar luciferiano. Esses são os {N} estágios.\n(confira na legenda 👇)"
+    ],
+    legenda:`O despertar não é um momento. É um processo.\n\nE ele rasga você antes de te reconstruir.\n\n🔱 Os 6 Estágios do Despertar Luciferiano:\n\n1️⃣ A RUPTURA\nTudo que você acreditava começa a não fazer mais sentido. Pode durar semanas ou anos.\n\n2️⃣ O VAZIO\nUm período de isolamento, busca intensa e questionamentos sem resposta imediata.\n\n3️⃣ O CHAMADO\nVocê encontra o caminho — ou ele te encontra. Não parece coincidência.\n\n4️⃣ A RESISTÊNCIA\nParte de você ainda quer a segurança do que era antes. É o ego resistindo à transformação.\n\n5️⃣ A ACEITAÇÃO\nVocê para de lutar. Começa a caminhar. A prática se torna natural.\n\n6️⃣ A TRANSFORMAÇÃO\nO que emerge é irreversível. Você não volta a ser quem era.\n\nNão existe volta depois do verdadeiro despertar.\n\nComente em qual estágio você está. 👇`,
+    tags:["#despertar","#despertarLuciferiano","#luciferianismo","#transformacao","#caminho","#osombral","#ocultismo","#espiritualidade","#autoconhecimento","#sombra","#processo"]
+  },
+  {
+    id:9,title:"Azazel — o anjo que ensinou o que não devia",cat:"entidades",badge:"new",score:79,
+    viralScore:{hook:81,legenda:83,visual:80},
+    keys:["azazel","anjo caido","conhecimento","fogo","enoque"],
+    hooks:[
+      "AZAZEL foi banido porque ensinou o que não devia ser ensinado.\nE ele ainda ensina. Esses são os {N} sinais de que ele está próximo.\n👇",
+      "Antes de trabalhar com AZAZEL, você precisa saber disso.\n{N} verdades que o ocultismo mainstream não conta.\n(legenda completa 👇)",
+      "AZAZEL não veio por amor à humanidade.\nEle veio por algo mais profundo.\nEsse é o segredo que muda tudo para quem está no caminho. 👇"
+    ],
+    legenda:`No Livro de Enoque, Azazel foi banido por ensinar.\n\nEnsinou metalurgia, guerra, cosmética, sedução — conhecimento que empoderava a humanidade a viver sem depender dos deuses.\n\n🔱 Quem é Azazel no caminho luciferiano:\n\n✦ Professor dos mistérios do fogo e da transformação\n✦ Guardião do conhecimento que empodera, não que consola\n✦ Trabalha com os que buscam maestria, não facilidade\n✦ Suas lições são duras — e por isso são transformadoras\n\n🔱 Como ele aparece:\n\n✦ Sonhos com fogo, deserto ou batalhas internas\n✦ Impulsos súbitos de aprender algo específico sem razão aparente\n✦ Eventos que forçam sua independência e autossuficiência\n\n⚠️ Azazel não é um facilitador. Ele é um catalisador.\n\nTrabalhar com ele exige disposição para ser destruído e reconstruído.\n\nSalva se ressoa. 🔥`,
+    tags:["#azazel","#anjosCaidos","#luciferianismo","#ocultismo","#conhecimento","#osombral","#magiasombria","#esoterismo","#fogo","#despertar","#entidades"]
+  },
+  {
+    id:10,title:"Luciferianismo não é satanismo — a diferença real",cat:"conceito",badge:"hot",score:92,
+    viralScore:{hook:90,legenda:89,visual:83},
+    keys:["diferença","satanismo","identidade","filosofia","erro comum"],
+    hooks:[
+      "LUCIFERIANISMO não é satanismo.\nEsses {N} pontos explicam a diferença que 99% das pessoas confunde.\n(legenda completa 👇)",
+      "Você chama o luciferianismo de satanismo?\nEntão você não sabe o que é nenhum dos dois.\nVeja a verdade aqui. 👇",
+      "O erro mais comum de quem critica o luciferianismo:\nconfundir com satanismo.\nEsses são os {N} fatos que separam os dois para sempre. 👇"
+    ],
+    legenda:`A confusão é compreensível. A diferença é fundamental.\n\n🔱 LUCIFERIANISMO:\n\n✦ Foco na iluminação espiritual e autodesenvolvimento\n✦ Lúcifer como arquétipo de luz, conhecimento e liberdade\n✦ Filosofia de expansão da consciência\n✦ Pode ser teísta, filosófico ou agnóstico\n✦ Não exige rejeição de Deus — exige autonomia espiritual\n\n🔱 SATANISMO:\n\n✦ Múltiplas vertentes com filosofias distintas\n✦ LaVeyan: Satanás como símbolo de rebelião — geralmente ateísta\n✦ Theísta: Satanás como entidade real a ser venerada\n✦ Foco no ego, individualismo e satisfação humana\n\nSão caminhos distintos com origens, filosofias e práticas completamente diferentes.\n\nO erro de confundi-los prejudica quem estuda qualquer um dos dois.\n\nSalva esse post. Para de precisar explicar isso. 😅`,
+    tags:["#luciferianismo","#satanismo","#diferenca","#ocultismo","#filosofia","#osombral","#esoterismo","#verdade","#caminho","#conhecimento","#iniciacao"]
+  },
+  {
+    id:11,title:"Selos e sigils luciferianos — como usar de verdade",cat:"pratica",badge:"new",score:78,
+    viralScore:{hook:77,legenda:82,visual:85},
+    keys:["selos","sigils","magia","símbolos","manifestação"],
+    hooks:[
+      "Os SELOS luciferianos não são decoração.\nSão ferramentas de manifestação.\nEsses são os {N} que você precisa conhecer.\n(legenda completa 👇)",
+      "Você usa selos sem entender o que eles fazem.\nEsses são os {N} erros mais comuns — e como corrigi-los.\n👇",
+      "Um selo luciferiano ativado corretamente muda a trajetória espiritual.\nEsses são os {N} passos que ninguém ensina.\n👇"
+    ],
+    legenda:`Os selos não são apenas símbolos.\n\nSão pontos de contato entre o plano físico e as forças invocadas.\n\n🔱 Como usar selos luciferianos:\n\n1️⃣ Estude o significado antes de desenhar — a intenção vem primeiro, sempre\n2️⃣ Desenhe à mão. A energia da sua mão faz parte do processo.\n3️⃣ Ative com sangue (uma gota), vela vermelha ou respiração intencional\n4️⃣ Carregue consigo ou posicione no espaço de trabalho ritual\n5️⃣ Ao completar o trabalho, queime ou enterre o selo\n\n🔱 O que evitar:\n\n✦ Nunca use selos que você não compreende\n✦ Não copie de imagens sem entender o contexto original\n✦ O desconhecido mal direcionado gera caos não intencional\n\n⚠️ Um selo sem intenção clara é apenas um desenho.\n\nA força está no praticante, não no papel.\n\nSalva esse post para consultar quando precisar. 🔱`,
+    tags:["#selos","#sigils","#luciferianismo","#magiaSombria","#ocultismo","#osombral","#ritual","#esoterismo","#magia","#iniciacao","#manifestacao"]
+  },
+  {
+    id:12,title:"A noite sombria da alma no caminho luciferiano",cat:"despertar",badge:"trend",score:83,
+    viralScore:{hook:86,legenda:84,visual:81},
+    keys:["noite sombria","crise espiritual","dark night","travessia"],
+    hooks:[
+      "A NOITE SOMBRIA DA ALMA é o teste que Lúcifer coloca em frente de todo iniciado.\nEsses são os {N} sinais de que você está passando por ela agora.\n👇",
+      "Antes do despertar completo vem a destruição.\nÉ a noite sombria da alma. E não tem como fugir.\n(o que fazer na legenda 👇)",
+      "Se tudo está desmoronando ao redor de você no caminho espiritual...\nnão é sinal de abandono. É teste.\n(explico na legenda 👇)"
+    ],
+    legenda:`Todo iniciado passa por isso.\n\nE a maioria foge antes de atravessar.\n\n🔱 O que é a Noite Sombria da Alma:\n\nÉ um período de dissolução — quando tudo que você usava como âncora (crenças, relacionamentos, identidade) começa a desaparecer.\n\n🔱 Sinais de que você está nela:\n\n✦ Sensação de vazio profundo sem causa aparente\n✦ Perda de interesse em tudo que antes te motivava\n✦ Questionamento radical da sua própria identidade\n✦ Isolamento natural — as pessoas comuns parecem distantes\n✦ Pesadelos ou sono intenso e pesado\n\n🔱 O que fazer:\n\n✦ Não fuja para distrações — elas prolongam o processo\n✦ Documente tudo em um diário de sombra\n✦ A prática ritual ainda é possível — e ajuda a ancorar\n✦ Lúcifer está presente no silêncio. Ouça.\n\nA noite sombria termina. E o que nasce depois é irreversível.\n\nSalva esse post. Você vai precisar lembrar disso. 🌑`,
+    tags:["#noiteSombria","#darkNight","#luciferianismo","#despertar","#ocultismo","#osombral","#crise","#transformacao","#caminho","#sombra","#espiritualidade"]
+  }
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let selected = null;
+let hookIdx = 0;
+let filtered = [...TRENDS];
+let aiImageBase64 = null; // Stores base64 from Gemini Imagen
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+window.onload = () => { renderTrends(); renderImage(); };
+
+// ═══════════════════════════════════════════
+// TRENDS
+// ═══════════════════════════════════════════
+function renderTrends() {
+  const list = document.getElementById('trendList');
+  if (!filtered.length) { list.innerHTML = '<div class="empty">Nenhuma trend encontrada.</div>'; return; }
+  list.innerHTML = filtered.map(t => `
+    <div class="trend-item ${selected?.id===t.id?'active':''}" onclick="selectTrend(${t.id})">
+      <div class="tt">${t.title}</div>
+      <div class="tm">
+        <span class="badge badge-${t.badge}">${t.badge==='hot'?'🔥 Em Alta':t.badge==='trend'?'📈 Trend':'✨ Novo'}</span>
+        <span class="cat-tag">${catLabel(t.cat)}</span>
+        <span style="margin-left:auto;font-size:.65rem;color:var(--gold)">${scoreStars(t.score)}</span>
+      </div>
+    </div>`).join('');
+}
+
+function catLabel(c){return{sinais:'Sinais',conceito:'Conceito',pratica:'Prática',despertar:'Despertar',entidades:'Entidades'}[c]||c}
+function scoreStars(s){return s>=90?'★★★★★':s>=80?'★★★★☆':s>=70?'★★★☆☆':'★★☆☆☆'}
+
+function filterTrends(q) {
+  const ql = q.toLowerCase();
+  filtered = ql ? TRENDS.filter(t => t.title.toLowerCase().includes(ql)||t.keys.some(k=>k.includes(ql))||catLabel(t.cat).toLowerCase().includes(ql)) : [...TRENDS];
+  renderTrends();
+}
+
+function selectTrend(id) {
+  selected = TRENDS.find(t=>t.id===id);
+  hookIdx = 0;
+  renderTrends();
+  document.getElementById('selectedLabel').textContent = '→ ' + selected.title;
+  generateCopy();
+  renderImage();
+}
+
+function searchWeb() {
+  const icon = document.getElementById('refreshIcon');
+  icon.className = 'spinning';
+  setTimeout(() => {
+    icon.className = '';
+    window.open('https://www.google.com/search?q=luciferianismo+ocultismo+instagram+reels+viral+2026+tendencias','_blank');
+    showToast('🌐 Pesquisa aberta no navegador!');
+  }, 800);
+}
+
+// ═══════════════════════════════════════════
+// COPY GENERATION
+// ═══════════════════════════════════════════
+function generateCopy() {
+  if (!selected) return;
+  const N = [3,4,5,6,7][Math.floor(Math.random()*5)];
+
+  // Hook
+  const hookEl = document.getElementById('hookText');
+  const hook = selected.hooks[hookIdx%selected.hooks.length].replace(/{N}/g,N);
+  hookEl.textContent = hook;
+
+  // Hook variants
+  const vBox = document.getElementById('hookVariants');
+  vBox.innerHTML = selected.hooks.map((h,i)=>`
+    <div style="padding:10px;background:var(--s2);border:1px solid var(--border);border-radius:7px;font-size:.78rem;line-height:1.5;cursor:pointer;transition:all .15s;white-space:pre-wrap"
+      onclick="applyHookVariant(${i})"
+      onmouseover="this.style.borderColor='var(--gold)'"
+      onmouseout="this.style.borderColor='var(--border)'">
+      <span style="font-size:.6rem;color:var(--gold);display:block;margin-bottom:4px;letter-spacing:1px">MODELO ${i+1}</span>${h.replace(/{N}/g,N)}
+    </div>`).join('');
+
+  // Legenda — clean ending + "Siga @o.sombral para mais!"
+  const legendaEl = document.getElementById('legendaText');
+  const legendaBase = selected.legenda.replace(/\n\n@o\.sombral\s*$/, '').trimEnd();
+  legendaEl.textContent = legendaBase + '\n\nSiga @o.sombral para mais!';
+
+  // Hashtags
+  document.getElementById('hashtagList').innerHTML = selected.tags.slice(0,5).map(h=>`<span class="htag" onclick="copyTag('${h}')">${h}</span>`).join('');
+
+  renderScore();
+  // Atualiza painel de texto separado (quando AI image ativa)
+  if (aiImageBase64) updateTextPanel();
+}
+
+function applyHookVariant(i) { hookIdx=i; generateCopy(); applyToImage(); showToast('✓ Modelo '+(i+1)+' aplicado!'); }
+function nextHook() { if(!selected)return; hookIdx=(hookIdx+1)%selected.hooks.length; generateCopy(); renderImage(); }
+function regenerateLegenda() { if(!selected)return; generateCopy(); showToast('✓ Legenda regenerada!'); }
+function applyToImage() { if(aiImageBase64) updateTextPanel(); renderImage(); showToast('✓ Texto atualizado!'); }
+
+function renderScore() {
+  if(!selected)return;
+  const s=selected.viralScore;
+  document.getElementById('scorePanel').innerHTML=`
+    <div style="margin-bottom:14px;text-align:center">
+      <div style="font-size:2.2rem;font-weight:900;font-family:'Cinzel',serif;color:var(--gold)">${selected.score}</div>
+      <div style="font-size:.7rem;color:var(--muted);letter-spacing:1px">SCORE VIRAL ESTIMADO</div>
+    </div>
+    ${sRow('🪝 Potencial do Gancho',s.hook)}
+    ${sRow('📝 Qualidade da Legenda',s.legenda)}
+    ${sRow('🖼️ Impacto Visual',s.visual)}
+    <hr class="divider">
+    <div style="font-size:.75rem;color:var(--muted);line-height:1.7">
+      <strong style="color:var(--gold);font-size:.68rem;letter-spacing:1px">DICAS DE OTIMIZAÇÃO</strong><br><br>
+      ${selected.score>=90?'✦ Trend de alto potencial — publique nas próximas 24h<br>✦ Use áudio em alta nos reels para amplificar o alcance<br>✦ Responda os primeiros comentários em até 30 min':
+        selected.score>=80?'✦ Boa trend — reforçe com áudio viral<br>✦ Poste no horário de pico do seu nicho (21h-23h)<br>✦ Use o gancho em voz off para aumentar retenção':
+        '✦ Trend emergente — boa para ser o primeiro a publicar<br>✦ Adicione uma opinião pessoal para se diferenciar'}
+    </div>`;
+}
+function sRow(l,v){return`<div style="margin-bottom:10px"><div style="font-size:.72rem;margin-bottom:4px;display:flex;justify-content:space-between"><span>${l}</span><span style="color:var(--gold);font-weight:600">${v}</span></div><div class="score-bar"><div class="score-fill" style="width:${v}%"></div></div></div>`}
+
+// ═══════════════════════════════════════════
+// TABS & UTILS
+// ═══════════════════════════════════════════
+function switchTab(n){
+  const tabs=['hook','legenda','hashtags','score'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===n));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+}
+function copyText(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('📋 Copiado!'))}
+function copyHashtags(){if(!selected)return;navigator.clipboard.writeText(selected.tags.slice(0,5).join(' ')).then(()=>showToast('📋 Hashtags copiadas!'))}
+function copyTag(t){navigator.clipboard.writeText(t).then(()=>showToast('📋 '+t))}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+
+// ═══════════════════════════════════════════
+// PROMPT BUILDER — adapta visualmente ao tema da trend
+// ═══════════════════════════════════════════
+function buildImagePrompt(trend) {
+  // Cena principal única por tema — descreve visualmente o assunto da publicação
+  const scenes = {
+    1: { // Sinais de que Lúcifer já veio até você
+      en: 'A lone figure standing in a dark gothic stone cathedral, looking around in awe as mysterious glowing luciferian sigils materialize on the ancient walls, ethereal light trails float through the air, repeating numbers and symbols appear everywhere — the unmistakable signs of a divine visitation already occurred. Massive dark feathered wings spread behind the figure. Hellish red-orange glow from below.',
+      pt: 'Uma figura solitária de pé em uma catedral gótica sombria, olhando ao redor com assombro enquanto sigilos luciferianos brilhantes se materializam nas paredes de pedra antigas, rastros de luz etérea flutuam pelo ar, números e símbolos se repetem por toda parte — os inconfundíveis sinais de que uma visitação divina já aconteceu. Enormes asas negras de penas abertas atrás da figura. Brilho infernal vermelho-laranja vindo do chão.'
+    },
+    2: { // A Chama Negra
+      en: 'A powerful shirtless figure with massive dark wings in a gothic cathedral, holding a mysterious dark black flame burning in both raised hands. The black fire emanates from deep within the chest, spreading outward as an inner aura — the Black Flame of divine selection. Dark energy cracks through the skin like light from within. Only the chosen few carry this fire. Dramatic red-orange hellish glow from below.',
+      pt: 'Uma figura poderosa sem camisa com enormes asas sombrias em uma catedral gótica, segurando uma misteriosa chama negra ardendo nas duas mãos erguidas. O fogo negro emana de dentro do peito, se espalhando como uma aura interior — a Chama Negra da seleção divina. Energia sombria racha pela pele como luz vinda de dentro. Apenas os escolhidos carregam esse fogo. Brilho infernal dramático vermelho-laranja vindo de baixo.'
+    },
+    3: { // Pacto luciferiano
+      en: 'A shirtless muscular figure with dark wings kneeling solemnly inside a glowing ritual circle etched into the ancient stone floor of a gothic cathedral. Ritual candles at each cardinal point, smoke rising slowly. The figure extends both hands over the circle in a gesture of sacred commitment — the luciferian pact being sealed. Red-orange hellfire glow rising from below the stone floor.',
+      pt: 'Uma figura musculosa sem camisa com asas sombrias ajoelhada solenemente dentro de um círculo ritual brilhante entalhado no chão de pedra antiga de uma catedral gótica. Velas rituais em cada ponto cardeal, fumaça subindo lentamente. A figura estende as duas mãos sobre o círculo em gesto de comprometimento sagrado — o pacto luciferiano sendo selado. Brilho de fogo infernal vermelho-laranja subindo de baixo do chão de pedra.'
+    },
+    4: { // Lúcifer vs Satanás — o erro que invalida tudo
+      en: 'A majestic winged figure in a gothic cathedral split between two archetypes: on one side, Lucifer — the light bearer, radiating dark illumination and forbidden knowledge, morning star of Venus glowing above. On the other side, pure shadow and adversarial force. The figure embodies the duality — light and darkness are not the same, knowledge versus opposition. Dramatic cinematic lighting with extreme contrast.',
+      pt: 'Uma figura majestosa alada em uma catedral gótica dividida entre dois arquétipos: de um lado, Lúcifer — o portador da luz, irradiando iluminação sombria e conhecimento proibido, estrela da manhã de Vênus brilhando acima. Do outro lado, sombra pura e força adversária. A figura encarna a dualidade — luz e trevas não são a mesma coisa, conhecimento versus oposição. Iluminação cinematográfica dramática com contraste extremo.'
+    },
+    5: { // Você foi escolhido para o caminho sombrio
+      en: 'A solitary shirtless figure with dark spreading wings standing in a gothic cathedral as a single beam of forbidden dark light descends from the vaulted ceiling above, illuminating only this one figure in the total darkness. The figure raises their face upward, recognizing the call. An inevitable sense of destiny and divine dark selection. A path of shadow and light extends forward on the stone floor.',
+      pt: 'Uma figura solitária sem camisa com asas sombrias abertas em uma catedral gótica enquanto um único raio de luz sombria e proibida desce do teto abobadado acima, iluminando apenas essa figura na escuridão total. A figura ergue o rosto para cima, reconhecendo o chamado. Um sentido inevitável de destino e seleção divina sombria. Um caminho de sombra e luz se estende no chão de pedra à frente.'
+    },
+    6: { // Qliphoth — a Árvore das Sombras proibida
+      en: 'A dark inverted Tree of Shadows — the Qliphoth — burning in deep purple energy on the cathedral wall behind a winged figure. Qliphothic spheres of dark energy float through the space. Ancient kabbalistic shadow symbols carved into stone glow with forbidden light. A figure kneels in reverence before the forbidden tree, studying what others fear to see.',
+      pt: 'Uma Árvore das Sombras invertida — o Qliphoth — ardendo em energia roxa profunda na parede da catedral atrás de uma figura alada. Esferas qliphóticas de energia sombria flutuam pelo espaço. Símbolos cabalísticos das sombras entalhados em pedra brilham com luz proibida. Uma figura se ajoelha em reverência diante da árvore proibida, estudando o que os outros temem ver.'
+    },
+    7: { // Lilith — como trabalhar com ela sem errar
+      en: 'A dark gothic cathedral transformed by the presence of Lilith — dark feminine serpentine energy swirling powerfully through the space, black roses scattered across the ancient stone floor, a black moon symbol burning overhead, silver moonlight filtering through cathedral shadows. A figure stands in the center, surrounded by the primordial dark feminine archetype, both terrifying and magnificent.',
+      pt: 'Uma catedral gótica sombria transformada pela presença de Lilith — energia serpentina feminina sombria envolvendo poderosamente o espaço, rosas negras espalhadas pelo chão de pedra antiga, símbolo da lua negra ardendo acima, luz prateada da lua filtrando pelas sombras da catedral. Uma figura de pé no centro, rodeada pelo arquétipo feminino sombrio primordial, ao mesmo tempo aterrorizante e magnífico.'
+    },
+    8: { // Despertar luciferiano — os 6 estágios reais
+      en: 'A powerful figure in a gothic cathedral caught mid-transformation — the luciferian awakening at its peak. Dark energy erupts through the skin as light from within, the old self dissolving into shadow behind while a stronger dark form emerges forward. Massive wings unfurl for the first time. Metamorphosis energy swirling. The irreversible spiritual rebirth of the luciferian path in cinematic 4K.',
+      pt: 'Uma figura poderosa em uma catedral gótica capturada no meio da transformação — o despertar luciferiano em seu auge. Energia sombria irrompe pela pele como luz vinda de dentro, o eu antigo se dissolvendo em sombra atrás enquanto uma forma sombria mais forte emerge à frente. Asas enormes se abrem pela primeira vez. Energia de metamorfose envolvendo. O renascimento espiritual irreversível do caminho luciferiano em cinematográfico 4K.'
+    },
+    9: { // Azazel — o anjo que ensinou o que não devia
+      en: 'A ancient fallen teacher figure with massive ancient dark wings standing in a gothic cathedral, surrounded by the fire of forbidden knowledge — not hellfire, but the sacred flames of what was taught when it should not have been. Ember particles and ancient desert sand float through the cathedral air. A posture of authority and ancient wisdom. Teaching what the gods forbade.',
+      pt: 'Uma figura de mestre caído ancestral com enormes asas sombrias antigas de pé em uma catedral gótica, rodeada pelo fogo do conhecimento proibido — não fogo do inferno, mas as chamas sagradas do que foi ensinado quando não devia ter sido. Partículas de brasa e areia do deserto ancestral flutuam pelo ar da catedral. Uma postura de autoridade e sabedoria antiga. Ensinando o que os deuses proibiram.'
+    },
+    10: { // Luciferianismo não é satanismo
+      en: 'A noble shirtless winged figure standing in a gothic cathedral radiating pure dark illumination — not evil, not malevolence, but forbidden knowledge and spiritual liberation. The morning star of Venus shines behind. The figure embodies enlightenment through shadow, light-bearing archetype, wisdom and autonomy. A powerful misunderstood truth made visible. No darkness of destruction — only the darkness of knowledge.',
+      pt: 'Uma figura nobre alada sem camisa em uma catedral gótica irradiando iluminação sombria pura — não o mal, não malevolência, mas conhecimento proibido e liberação espiritual. A estrela da manhã de Vênus brilha atrás. A figura encarna o iluminismo pelas sombras, arquétipo portador da luz, sabedoria e autonomia. Uma verdade poderosa e incompreendida tornada visível. Não a escuridão da destruição — apenas a escuridão do conhecimento.'
+    },
+    11: { // Selos e sigils luciferianos
+      en: 'A shirtless winged figure in a gothic cathedral surrounded entirely by ancient luciferian sigils and seals — glowing symbols etched and burning across every stone wall and the floor in an intricate sacred dark geometry. The figure reaches out and touches one sigil on the wall, activating it with an intense burst of dark energy. Mystical symbols float through the air. A living map of activated power.',
+      pt: 'Uma figura alada sem camisa em uma catedral gótica rodeada inteiramente por sigilos e selos luciferianos antigos — símbolos brilhantes gravados e ardendo em todas as paredes de pedra e no chão em uma geometria sombria sagrada intrincada. A figura estende a mão e toca um sigilo na parede, ativando-o com uma explosão intensa de energia sombria. Símbolos místicos flutuam no ar. Um mapa vivo de poder ativado.'
+    },
+    12: { // A noite sombria da alma
+      en: 'A winged figure collapsed and kneeling in total profound darkness at the center of a gothic cathedral — the dark night of the soul at its deepest point. Everything dissolved. The vaulted ceiling barely visible above. Silence and void surround. But from deep within the figure\'s chest, a single faint dark light begins to emerge — the birth of the new self after complete destruction. The hardest moment before the rebirth.',
+      pt: 'Uma figura alada curvada e ajoelhada na escuridão total e profunda no centro de uma catedral gótica — a noite sombria da alma em seu ponto mais profundo. Tudo dissolvido. O teto abobadado mal visível acima. Silêncio e vazio ao redor. Mas do fundo do peito da figura, uma única tênue luz sombria começa a emergir — o nascimento do novo eu após a destruição completa. O momento mais difícil antes do renascimento.'
+    }
+  };
+
+  const id = trend ? trend.id : null;
+  const scene = (id && scenes[id]) ? scenes[id] : {
+    en: 'A powerful shirtless muscular figure with massive dark feathered wings spread wide, standing in a gothic stone cathedral interior with ancient stone floor and arched columns. Hellish red-orange fire glow rising from below. Deep atmospheric shadows, dark purple black tones, extreme cinematic contrast.',
+    pt: 'Uma figura musculosa poderosa sem camisa com enormes asas negras de penas abertas ao máximo, de pé no interior de uma catedral gótica de pedra antiga com chão de pedra e colunas arqueadas. Brilho infernal vermelho-laranja subindo de baixo. Sombras atmosféricas profundas, tons de roxo escuro e preto, contraste cinematográfico extremo.'
+  };
+
+  const styleEN = 'photorealistic dark cinematic vertical photograph, ultra high detail 4K, extreme contrast dramatic lighting, dark purple black tones, no text no letters no watermarks no logo';
+
+  const promptEN = `${scene.en}, ${styleEN}`;
+
+  const promptPT =
+`Crie uma imagem ultrarrealista e fotorrealista, estilo fotografia cinematográfica profissional 4K, no formato vertical 9:16 (1080x1920 pixels).
+
+CENA PRINCIPAL — descrição detalhada do tema "${trend ? trend.title : 'Luciferianismo'}":
+${scene.pt}
+
+ESTILO OBRIGATÓRIO: fotorrealismo extremo, textura ultra detalhada de pele, penas e pedra, iluminação cinematográfica com alto contraste, tons de roxo escuro e preto, qualidade 4K, sem texto, sem letras, sem marcas d'água.
+
+FORMATO: vertical 9:16 (retrato), proporção 1080x1920 pixels.`;
+
+  return { en: promptEN, pt: promptPT };
+}
+
+// ═══════════════════════════════════════════
+// IMAGE GENERATION — Pollinations.ai (Flux) — gratuito, sem chave
+// ═══════════════════════════════════════════
+async function generateAIImage() {
+  const overlay = document.getElementById('imgLoading');
+  const loadText = document.getElementById('loadingText');
+  overlay.classList.add('show');
+  loadText.innerHTML = 'Gerando com<br>Flux AI...';
+
+  const prompt = buildImagePrompt(selected).en;
+  const seed = Math.floor(Math.random() * 9999999);
+  // Pollinations.ai — 100% gratuito, sem chave, modelo Flux Realism
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=576&height=1024&nologo=true&model=flux-realism&seed=${seed}&enhance=true`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const blob = await res.blob();
+
+    // Converte blob → base64 para usar no canvas
+    await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        // Remove o prefixo "data:image/jpeg;base64,"
+        aiImageBase64 = reader.result.split(',')[1];
+        resolve();
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+
+    document.getElementById('aiBadge').textContent = '✨ FLUX REALISM';
+    document.getElementById('aiBadge').classList.add('show');
+    document.getElementById('clearAiBtn').style.display = 'block';
+    renderImage();
+    showToast('✨ Imagem gerada com Flux Realism!');
+
+  } catch (e) {
+    showToast('❌ Erro ao gerar imagem: ' + e.message.substring(0, 60));
+    console.error('Pollinations error:', e);
+  } finally {
+    overlay.classList.remove('show');
+  }
+}
+
+function clearAIImage() {
+  aiImageBase64 = null;
+  document.getElementById('aiBadge').classList.remove('show');
+  document.getElementById('clearAiBtn').style.display = 'none';
+  document.getElementById('textPanel').style.display = 'none';
+  document.getElementById('downloadNote').style.display = 'none';
+  renderImage();
+  showToast('✓ Voltando para canvas manual');
+}
+
+// ── Painel de texto separado ──
+function showTextPanel() {
+  document.getElementById('textPanel').style.display = 'block';
+  document.getElementById('downloadNote').style.display = 'block';
+  updateTextPanel();
+}
+function updateTextPanel() {
+  const hookEl = document.getElementById('hookText');
+  const panelEl = document.getElementById('panelHookText');
+  if (!hookEl || !panelEl) return;
+  const t = hookEl.textContent || '';
+  panelEl.textContent = t.includes('←') ? '← Selecione uma trend para gerar o gancho' : t;
+}
+function copyPanelText() {
+  const el = document.getElementById('panelHookText');
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => showToast('📋 Texto copiado!'));
+}
+
+// ═══════════════════════════════════════════
+// GOOGLE GEMINI — GERAÇÃO DE IMAGEM
+// ═══════════════════════════════════════════
+function generateGeminiImage() {
+  const prompt = buildImagePrompt(selected).pt;
+
+  // Copia o prompt para a área de transferência
+  navigator.clipboard.writeText(prompt).then(() => {
+    showToast('📋 Prompt copiado! Cole no Gemini e gere a imagem.');
+  }).catch(() => {
+    showToast('🔗 Abrindo Google Gemini...');
+  });
+
+  // Abre o Google Gemini em nova aba
+  window.open('https://gemini.google.com/app', '_blank');
+}
+
+// ═══════════════════════════════════════════
+// AUDIO GENERATION — Gemini TTS + fallback gratuito
+// ═══════════════════════════════════════════
+async function generateAudio() {
+  const apiKey = document.getElementById('geminiKey').value.trim();
+  const legendaEl = document.getElementById('legendaText');
+  const text = legendaEl.textContent.trim();
+  if (!text || text.includes('←')) { showToast('⚠️ Selecione uma trend primeiro!'); return; }
+
+  const btn = document.getElementById('audioBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Gerando áudio...';
+
+  const voice = document.getElementById('voiceSelect').value;
+  const trend = selected ? selected.title.replace(/[^a-zA-Z0-9]/g,'-').substring(0,30) : 'legenda';
+
+  // Helper: show player + trigger download
+  const deliverAudio = (blob, ext) => {
+    const url = URL.createObjectURL(blob);
+    const player = document.getElementById('audioPlayer');
+    player.src = url;
+    document.getElementById('audioPlayerWrap').style.display = 'block';
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `osombral_audio_${trend}_${Date.now()}.${ext}`;
+    a.click();
+    showToast('🎵 Áudio gerado e baixado!');
+  };
+
+  const narrativePrompt = `Leia o texto a seguir em português do Brasil, com voz dramática, misteriosa e envolvente. Ritmo lento e poderoso, pausas expressivas:\n\n${text}`;
+
+  // ── Tentativa Gemini TTS (requer chave) ──
+  if (apiKey) {
+    const ttsModels = [
+      'gemini-2.5-flash-preview-tts',
+      'gemini-2.5-pro-preview-tts',
+      'gemini-2.0-flash-live-001'
+    ];
+    for (const model of ttsModels) {
+      try {
+        btn.textContent = `⏳ Tentando ${model.split('-').slice(0,3).join('-')}...`;
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: narrativePrompt }] }],
+              generationConfig: {
+                responseModalities: ['AUDIO'],
+                speechConfig: {
+                  voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } }
+                }
+              }
+            })
+          }
+        );
+        if (!res.ok) { const err = await res.json(); console.warn(`${model}:`, err.error?.message); continue; }
+        const data = await res.json();
+        const audioPart = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+        if (!audioPart?.data) { console.warn(`${model}: sem dados de áudio`); continue; }
+        deliverAudio(pcmToMP3(audioPart.data), 'mp3');
+        btn.disabled = false; btn.textContent = '🎵 Gerar e Baixar Áudio (MP3)';
+        return;
+      } catch (e) { console.warn(`${model} erro:`, e); }
+    }
+    showToast('⚠️ Gemini TTS indisponível — usando voz alternativa gratuita...');
+  }
+
+  // ── Fallback: StreamElements TTS gratuito (PT-BR) ──
+  try {
+    btn.textContent = '⏳ Voz alternativa gratuita...';
+    const seVoice = 'Ricardo'; // PT-BR masculino; alternativa: Vitoria (feminino)
+    const shortText = text.substring(0, 550); // limite da API
+    const seUrl = `https://api.streamelements.com/kappa/v2/speech?voice=${seVoice}&text=${encodeURIComponent(shortText)}`;
+    const res = await fetch(seUrl);
+    if (!res.ok) throw new Error(`StreamElements: HTTP ${res.status}`);
+    const blob = await res.blob();
+    deliverAudio(blob, 'mp3');
+    if (!apiKey) showToast('💡 Dica: insira uma Gemini API Key para voz de maior qualidade!');
+  } catch (e) {
+    showToast('❌ Erro no áudio: ' + e.message.substring(0, 60));
+    console.error('Erro de áudio:', e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🎵 Gerar e Baixar Áudio (MP3)';
+  }
+}
+
+// Convert base64 PCM 16-bit 24000Hz mono → WAV Blob
+function pcmToWAV(base64PCM, sampleRate = 24000) {
+  const bin = atob(base64PCM);
+  const pcm = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) pcm[i] = bin.charCodeAt(i);
+
+  const numCh = 1, bps = 16;
+  const blockAlign = numCh * bps / 8;
+  const byteRate = sampleRate * blockAlign;
+  const dataSize = pcm.length;
+
+  const buf = new ArrayBuffer(44 + dataSize);
+  const v = new DataView(buf);
+  const ws = (off, s) => { for (let i=0;i<s.length;i++) v.setUint8(off+i, s.charCodeAt(i)); };
+
+  ws(0,'RIFF'); v.setUint32(4,36+dataSize,true); ws(8,'WAVE');
+  ws(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true);
+  v.setUint16(22,numCh,true); v.setUint32(24,sampleRate,true);
+  v.setUint32(28,byteRate,true); v.setUint16(32,blockAlign,true);
+  v.setUint16(34,bps,true); ws(36,'data'); v.setUint32(40,dataSize,true);
+  new Uint8Array(buf,44).set(pcm);
+
+  return new Blob([buf], {type:'audio/wav'});
+}
+
+// Convert base64 PCM 16-bit 24000Hz mono → MP3 Blob via lamejs
+function pcmToMP3(base64PCM, sampleRate = 24000) {
+  // Decode base64 PCM
+  const bin = atob(base64PCM);
+  const pcm16 = new Int16Array(bin.length / 2);
+  for (let i = 0; i < pcm16.length; i++) {
+    pcm16[i] = (bin.charCodeAt(i * 2) & 0xff) | ((bin.charCodeAt(i * 2 + 1) & 0xff) << 8);
+  }
+
+  // Encode to MP3 with lamejs (128kbps mono)
+  const encoder = new lamejs.Mp3Encoder(1, sampleRate, 128);
+  const mp3Chunks = [];
+  const blockSize = 1152;
+
+  for (let i = 0; i < pcm16.length; i += blockSize) {
+    const chunk = pcm16.subarray(i, i + blockSize);
+    const encoded = encoder.encodeBuffer(chunk);
+    if (encoded.length > 0) mp3Chunks.push(new Uint8Array(encoded));
+  }
+  const flushed = encoder.flush();
+  if (flushed.length > 0) mp3Chunks.push(new Uint8Array(flushed));
+
+  return new Blob(mp3Chunks, { type: 'audio/mp3' });
+}
+
+// ═══════════════════════════════════════════
+// CANVAS IMAGE RENDERER
+// ═══════════════════════════════════════════
+
+// object-fit:cover equivalent for canvas
+function drawImageCover(ctx, img, x, y, w, h) {
+  const iR = img.naturalWidth / img.naturalHeight;
+  const cR = w / h;
+  let sx, sy, sw, sh;
+  if (iR > cR) {
+    // image wider than canvas ratio — crop sides
+    sh = img.naturalHeight; sw = sh * cR;
+    sx = (img.naturalWidth - sw) / 2; sy = 0;
+  } else {
+    // image taller than canvas ratio — crop top/bottom
+    sw = img.naturalWidth; sh = sw / cR;
+    sx = 0; sy = (img.naturalHeight - sh) / 2;
+  }
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+function renderImage() {
+  const canvas = document.getElementById('previewCanvas');
+  const ctx = canvas.getContext('2d');
+  const W=216, H=384;
+  const style=document.getElementById('bgStyle').value;
+  const intensity=parseFloat(document.getElementById('glowIntensity').value)/100;
+  const hex=document.getElementById('glowColor').value;
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  const pos=document.getElementById('textPos').value;
+
+  ctx.clearRect(0,0,W,H);
+
+  if (aiImageBase64) {
+    // Draw AI image clean — sem texto sobreposto
+    const img = new Image();
+    img.onload = () => {
+      drawImageCover(ctx,img,0,0,W,H);
+      drawGlow(ctx,W,H,intensity*0.7,r,g,b);
+      drawVignette(ctx,W,H);
+      // Texto é mostrado separado no painel abaixo
+      showTextPanel();
+    };
+    img.src = 'data:image/png;base64,'+aiImageBase64;
+  } else {
+    drawBG(ctx,W,H,style,intensity,r,g,b);
+    drawArch(ctx,W,H,style);
+    drawWings(ctx,W,H);
+    drawFigure(ctx,W,H);
+    drawGlow(ctx,W,H,intensity,r,g,b);
+    drawVignette(ctx,W,H);
+    const txt = getHookText();
+    drawText(ctx,W,H,txt,pos);
+  }
+}
+
+function getHookText() {
+  const el = document.getElementById('hookText');
+  return (el && el.textContent && !el.textContent.includes('←'))
+    ? el.textContent
+    : 'LÚCIFER NÃO ESPERA\nSER INVOCADO.\n\nEsse é o segredo que\nninguém te conta.\n(veja na legenda 👇)';
+}
+
+// ── BACKGROUND ──
+function drawBG(ctx,W,H,style,intensity,r,g,b) {
+  let bg;
+  if (style==='cathedral'){bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#05020e');bg.addColorStop(.35,'#0d0620');bg.addColorStop(.65,'#180914');bg.addColorStop(1,'#040108')}
+  else if(style==='hellfire'){bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#040004');bg.addColorStop(.5,'#180400');bg.addColorStop(1,'#080200')}
+  else if(style==='void'){bg=ctx.createRadialGradient(W/2,H*.4,10,W/2,H*.4,H*.6);bg.addColorStop(0,'#0a0415');bg.addColorStop(1,'#020106')}
+  else if(style==='sigil'){bg=ctx.createRadialGradient(W/2,H/2,20,W/2,H/2,H*.7);bg.addColorStop(0,'#0e0520');bg.addColorStop(1,'#030108')}
+  else{bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,'#02050e');bg.addColorStop(.5,'#060215');bg.addColorStop(1,'#020508')}
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  if(style==='void'||style==='abyss'){for(let i=0;i<120;i++){const sx=Math.random()*W,sy=Math.random()*H*.55,sr=Math.random()*.7+.1;ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${Math.random()*.5+.15})`;ctx.fill()}}
+}
+
+// ── ARCH / GOTHIC ELEMENTS ──
+function drawArch(ctx,W,H,style) {
+  ctx.save();
+  if(style==='cathedral'){
+    const pl=ctx.createLinearGradient(0,0,W*.22,0);pl.addColorStop(0,'rgba(45,25,15,.95)');pl.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=pl;ctx.fillRect(0,0,W*.22,H);
+    const pr=ctx.createLinearGradient(W,0,W*.78,0);pr.addColorStop(0,'rgba(45,25,15,.95)');pr.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=pr;ctx.fillRect(W*.78,0,W*.22,H);
+    ctx.beginPath();ctx.moveTo(W*.08,H*.2);ctx.quadraticCurveTo(W*.12,0,W/2,H*.07);ctx.quadraticCurveTo(W*.88,0,W*.92,H*.2);ctx.strokeStyle='rgba(100,65,30,.35)';ctx.lineWidth=.8;ctx.stroke();
+    const fl=ctx.createLinearGradient(0,H*.78,0,H);fl.addColorStop(0,'rgba(25,10,5,0)');fl.addColorStop(1,'rgba(15,6,3,.8)');ctx.fillStyle=fl;ctx.fillRect(0,H*.78,W,H*.22);
+  } else if(style==='sigil'){
+    const cx=W/2,cy=H*.44;
+    ctx.beginPath();ctx.arc(cx,cy,W*.42,0,Math.PI*2);ctx.strokeStyle='rgba(140,50,140,.18)';ctx.lineWidth=.7;ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,W*.32,0,Math.PI*2);ctx.strokeStyle='rgba(140,50,140,.13)';ctx.stroke();
+    const R=W*.4;ctx.beginPath();
+    for(let i=0;i<5;i++){const a=(i*4*Math.PI/5)-Math.PI/2;const x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+    ctx.closePath();ctx.strokeStyle='rgba(140,50,140,.18)';ctx.lineWidth=.5;ctx.stroke();
+  } else if(style==='hellfire'){
+    for(let i=0;i<8;i++){const fx=W*.1+i*(W*.8/7),fh=H*(.15+Math.random()*.1);const fg=ctx.createLinearGradient(fx,H,fx,H-fh);fg.addColorStop(0,'rgba(255,80,0,.12)');fg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=fg;ctx.fillRect(fx-2,H-fh,4,fh)}
+  }
+  ctx.restore();
+}
+
+// ── WINGS ──
+function drawWings(ctx,W,H) {
+  const cx=W/2, py=H*.25;
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.6)'; ctx.shadowBlur=10;
+  function wing(flip){
+    const d=flip?-1:1;
+    ctx.beginPath();
+    ctx.moveTo(cx-d*W*.04,py);
+    ctx.bezierCurveTo(cx-d*W*.15,py-H*.08,cx-d*W*.4,py-H*.14,cx-d*W*.48,py+H*.04);
+    ctx.bezierCurveTo(cx-d*W*.46,py+H*.14,cx-d*W*.38,py+H*.2,cx-d*W*.28,py+H*.22);
+    ctx.bezierCurveTo(cx-d*W*.42,py+H*.28,cx-d*W*.44,py+H*.35,cx-d*W*.38,py+H*.38);
+    ctx.bezierCurveTo(cx-d*W*.28,py+H*.35,cx-d*W*.18,py+H*.3,cx-d*W*.04,py+H*.28);
+    ctx.closePath();
+    const wg=flip?ctx.createLinearGradient(cx,0,cx+W*.48,0):ctx.createLinearGradient(cx-W*.48,0,cx,0);
+    if(!flip){wg.addColorStop(0,'rgba(4,2,8,.96)');wg.addColorStop(.6,'rgba(10,6,16,.9)');wg.addColorStop(1,'rgba(15,8,22,.5)')}
+    else{wg.addColorStop(0,'rgba(15,8,22,.5)');wg.addColorStop(.4,'rgba(10,6,16,.9)');wg.addColorStop(1,'rgba(4,2,8,.96)')}
+    ctx.fillStyle=wg; ctx.fill();
+  }
+  wing(false); wing(true);
+  ctx.shadowBlur=0; ctx.strokeStyle='rgba(40,20,50,.4)'; ctx.lineWidth=.4;
+  for(let i=0;i<5;i++){
+    const t=(i+1)/6;
+    [false,true].forEach(fl=>{const d=fl?-1:1;ctx.beginPath();ctx.moveTo(cx-d*W*.04,py+H*.05*i*.4);ctx.quadraticCurveTo(cx-d*W*(.15+t*.15),py+H*.1*t,cx-d*W*(.28+t*.12),py+H*(.1+t*.22));ctx.stroke()});
+  }
+  ctx.restore();
+}
+
+// ── FIGURE ──
+function drawFigure(ctx,W,H) {
+  const cx=W/2, headY=H*.17, headR=W*.055;
+  ctx.save();
+  const aura=ctx.createRadialGradient(cx,headY+headR*3,0,cx,headY+headR*3,W*.25);
+  aura.addColorStop(0,'rgba(255,240,220,.06)');aura.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=aura;ctx.fillRect(0,0,W,H);
+  ctx.beginPath();ctx.arc(cx,headY,headR,0,Math.PI*2);ctx.fillStyle='rgba(8,4,14,.95)';ctx.fill();
+  ctx.beginPath();ctx.moveTo(cx-W*.055,headY+headR*1.3);ctx.lineTo(cx+W*.055,headY+headR*1.3);ctx.lineTo(cx+W*.075,headY+headR*1.3+H*.22);ctx.lineTo(cx-W*.075,headY+headR*1.3+H*.22);ctx.closePath();ctx.fillStyle='rgba(8,4,14,.92)';ctx.fill();
+  ctx.restore();
+}
+
+// ── GLOW ──
+function drawGlow(ctx,W,H,intensity,r,g,b) {
+  const bg=ctx.createRadialGradient(W/2,H*.88,0,W/2,H*.88,H*.55);
+  bg.addColorStop(0,`rgba(${r},${g},${b},${intensity*.65})`);
+  bg.addColorStop(.45,`rgba(${Math.floor(r*.6)},${Math.floor(g*.35)},${Math.floor(b*.25)},${intensity*.28})`);
+  bg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  const cg=ctx.createRadialGradient(W/2,H*.3,0,W/2,H*.3,W*.38);
+  cg.addColorStop(0,`rgba(${r},${Math.floor(g*.5)},${Math.floor(b*.3)},${intensity*.12})`);
+  cg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=cg; ctx.fillRect(0,0,W,H);
+}
+
+// ── VIGNETTE ──
+function drawVignette(ctx,W,H) {
+  const v=ctx.createRadialGradient(W/2,H/2,H*.28,W/2,H/2,H*.68);
+  v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.72)');
+  ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+  const td=ctx.createLinearGradient(0,0,0,H*.18);
+  td.addColorStop(0,'rgba(0,0,0,.55)');td.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=td; ctx.fillRect(0,0,W,H*.18);
+}
+
+// ── TEXT + @o.sombral centralizado ──
+function drawText(ctx,W,H,rawText,pos) {
+  // Append handle to text so it's part of the block
+  const fullText = rawText.trimEnd() + '\n\n@o.sombral';
+  const lines = fullText.split('\n');
+  const maxW = W * 0.84;
+
+  // Build wrapped lines array
+  const wrapped = []; // {text, isItalic, isHandle}
+  lines.forEach(line => {
+    if (!line.trim()) { wrapped.push({text:'', isItalic:false, isHandle:false}); return; }
+    const isIt = line.startsWith('(');
+    const isHandle = line.trim() === '@o.sombral';
+    const sz = isHandle ? Math.floor(W*.04) : isIt ? Math.floor(W*.05) : Math.floor(W*.06);
+    ctx.font = `${isIt&&!isHandle?'italic ':''}bold ${sz}px Georgia,serif`;
+    const words = line.split(' ');
+    let cur = '';
+    words.forEach(w => {
+      const test = cur+(cur?' ':'')+w;
+      if (ctx.measureText(test).width > maxW && cur) { wrapped.push({text:cur,isItalic:isIt,isHandle}); cur=w; }
+      else cur=test;
+    });
+    if (cur) wrapped.push({text:cur,isItalic:isIt,isHandle});
+  });
+
+  // Overlay bg
+  let startRatio = pos==='bottom'?0.5:pos==='top'?0.05:0.28;
+  const bgS = H*(startRatio-0.02), bgE = H*(pos==='top'?0.72:0.95);
+  const tbg = ctx.createLinearGradient(0,bgS,0,bgE);
+  tbg.addColorStop(0,'rgba(0,0,0,0)');tbg.addColorStop(.2,'rgba(0,0,0,.48)');tbg.addColorStop(1,'rgba(0,0,0,.78)');
+  ctx.fillStyle=tbg; ctx.fillRect(0,bgS,W,bgE-bgS);
+
+  ctx.save();
+  ctx.textAlign='center';
+  const lh = H*.046;
+  const totalH = wrapped.length * lh;
+  let startY = pos==='bottom'?H*.59:pos==='top'?H*.12:H/2-totalH/2+H*.05;
+
+  wrapped.forEach((item,i) => {
+    if (!item.text) return;
+    const sz = item.isHandle ? Math.floor(W*.04) : item.isItalic ? Math.floor(W*.05) : Math.floor(W*.06);
+    ctx.font = `${item.isItalic&&!item.isHandle?'italic ':''}bold ${sz}px Georgia,serif`;
+    ctx.shadowColor='rgba(0,0,0,.95)'; ctx.shadowBlur=5; ctx.shadowOffsetX=1; ctx.shadowOffsetY=1;
+    // Handle gets gold tint, italic gets warm white, normal is white
+    ctx.fillStyle = item.isHandle ? 'rgba(210,170,90,.85)' : item.isItalic ? 'rgba(255,255,200,.88)' : '#ffffff';
+    ctx.fillText(item.text, W/2, startY+i*lh);
+  });
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════
+// DOWNLOAD (1080×1920)
+// ═══════════════════════════════════════════
+function downloadImage() {
+  const HR=document.createElement('canvas');
+  HR.width=1080; HR.height=1920;
+  const ctx=HR.getContext('2d');
+  const scale=1080/216;
+  const style=document.getElementById('bgStyle').value;
+  const intensity=parseFloat(document.getElementById('glowIntensity').value)/100;
+  const hex=document.getElementById('glowColor').value;
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const pos=document.getElementById('textPos').value;
+  const txt=getHookText();
+  const trend=selected?selected.title.replace(/[^a-zA-Z0-9]/g,'-').substring(0,30):'content';
+
+  if(aiImageBase64){
+    // ── DOWNLOAD LIMPO (sem texto) ──
+    const img=new Image();
+    img.onload=()=>{
+      drawImageCover(ctx,img,0,0,1080,1920);
+      // Glow e vignette leves, mas SEM texto
+      ctx.scale(scale,scale);
+      drawGlow(ctx,216,384,intensity*.7,r,g,b);
+      drawVignette(ctx,216,384);
+      const a=document.createElement('a');
+      a.download=`osombral_${trend}_${Date.now()}.png`;
+      a.href=HR.toDataURL('image/png');
+      a.click();
+      showToast('⬇️ Imagem limpa baixada! Copie o texto separado. (1080×1920px)');
+    };
+    img.src='data:image/png;base64,'+aiImageBase64;
+  } else {
+    // ── DOWNLOAD CANVAS MANUAL (com texto) ──
+    ctx.scale(scale,scale);
+    drawBG(ctx,216,384,style,intensity,r,g,b);drawArch(ctx,216,384,style);
+    drawWings(ctx,216,384);drawFigure(ctx,216,384);
+    drawGlow(ctx,216,384,intensity,r,g,b);
+    drawVignette(ctx,216,384);
+    drawText(ctx,216,384,txt,pos);
+    const a=document.createElement('a');
+    a.download=`osombral_${trend}_${Date.now()}.png`;
+    a.href=HR.toDataURL('image/png');
+    a.click();
+    showToast('⬇️ Download iniciado! (1080×1920px)');
+  }
+}
+</script>
+</body>
+</html>
