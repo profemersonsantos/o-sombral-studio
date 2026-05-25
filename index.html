@@ -771,15 +771,17 @@ function copyPanelText() {
 function generateGeminiImage() {
   const prompt = buildImagePrompt(selected).pt;
 
+  // Abre o Google Gemini ANTES de qualquer operação assíncrona
+  // (necessário no Android — window.open() precisa ser chamado
+  //  diretamente no gesto do usuário, não dentro de um callback)
+  window.open('https://gemini.google.com/app', '_blank');
+
   // Copia o prompt para a área de transferência
   navigator.clipboard.writeText(prompt).then(() => {
     showToast('📋 Prompt copiado! Cole no Gemini e gere a imagem.');
   }).catch(() => {
-    showToast('🔗 Abrindo Google Gemini...');
+    showToast('🔗 Google Gemini aberto! Copie o prompt manualmente.');
   });
-
-  // Abre o Google Gemini em nova aba
-  window.open('https://gemini.google.com/app', '_blank');
 }
 
 // ═══════════════════════════════════════════
