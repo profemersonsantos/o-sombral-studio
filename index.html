@@ -62,6 +62,10 @@ header p{color:var(--muted);font-size:.7rem;letter-spacing:3px;margin-top:3px;te
 .badge-hot{background:rgba(200,30,0,.25);color:#ff6655;border:1px solid rgba(200,30,0,.3)}
 .badge-trend{background:rgba(200,150,62,.18);color:var(--gold);border:1px solid rgba(200,150,62,.3)}
 .badge-new{background:rgba(50,150,255,.15);color:#88ccff;border:1px solid rgba(50,150,255,.25)}
+.badge-ai{background:rgba(102,34,204,.25);color:#cc88ff;border:1px solid rgba(102,34,204,.45)}
+.trend-item.ai-trend{border-color:rgba(102,34,204,.45);background:rgba(59,26,107,.18)}
+.trend-item.ai-trend:hover{border-color:rgba(102,34,204,.75);background:rgba(59,26,107,.28)}
+.trend-item.ai-trend.active{border-color:#6622cc;background:rgba(102,34,204,.2)}
 .cat-tag{font-size:.6rem;color:var(--muted);background:var(--s3);padding:2px 7px;border-radius:10px}
 
 .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--s2);flex-shrink:0}
@@ -150,7 +154,15 @@ audio{width:100%;border-radius:6px;background:var(--s2)}
     <div class="ph"><h2>📡 TRENDS DO NICHO</h2><p>Clique em uma trend para gerar o conteúdo</p></div>
     <div class="pb">
       <input class="searchbar" type="text" placeholder="🔍 Filtrar por tema..." oninput="filterTrends(this.value)">
-      <button class="btn btn-gold btn-full" onclick="searchWeb()"><span id="refreshIcon">🔄</span> Buscar Novas Trends</button>
+
+      <!-- Anthropic API Key -->
+      <div class="api-section" style="margin-bottom:9px">
+        <div class="api-section-title">🧠 ANTHROPIC API KEY</div>
+        <input class="api-input" type="password" id="anthropicKey" placeholder="sk-ant-...">
+        <div class="api-note">Para buscar novas trends com IA. <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--gold)">Pegar chave →</a></div>
+      </div>
+
+      <button class="btn btn-gold btn-full" onclick="searchWeb()" id="searchBtn"><span id="refreshIcon">🔄</span> <span id="searchBtnLabel">Buscar Novas Trends com IA</span></button>
       <div id="trendList"></div>
     </div>
   </div>
@@ -498,8 +510,8 @@ function renderTrends() {
   const list = document.getElementById('trendList');
   if (!filtered.length) { list.innerHTML = '<div class="empty">Nenhuma trend encontrada.</div>'; return; }
   list.innerHTML = filtered.map(t => `
-    <div class="trend-item ${selected?.id===t.id?'active':''}" onclick="selectTrend(${t.id})">
-      <div class="tt">${t.title}</div>
+    <div class="trend-item ${selected?.id===t.id?'active':''} ${t.aiGenerated?'ai-trend':''}" onclick="selectTrend(${t.id})">
+      <div class="tt">${t.aiGenerated?'<span style="font-size:.6rem;color:#cc88ff;letter-spacing:1px;display:block;margin-bottom:2px">🧠 GERADA POR IA</span>':''}${t.title}</div>
       <div class="tm">
         <span class="badge badge-${t.badge}">${t.badge==='hot'?'🔥 Em Alta':t.badge==='trend'?'📈 Trend':'✨ Novo'}</span>
         <span class="cat-tag">${catLabel(t.cat)}</span>
@@ -526,14 +538,170 @@ function selectTrend(id) {
   renderImage();
 }
 
-function searchWeb() {
+async function searchWeb() {
+  const anthropicKey = document.getElementById('anthropicKey').value.trim();
   const icon = document.getElementById('refreshIcon');
+  const btn = document.getElementById('searchBtn');
+  const btnLabel = document.getElementById('searchBtnLabel');
+
+  // Sem chave — abre Google como fallback
+  if (!anthropicKey) {
+    icon.className = 'spinning';
+    setTimeout(() => {
+      icon.className = '';
+      window.open('https://www.google.com/search?q=luciferianismo+ocultismo+instagram+reels+viral+2026+tendencias','_blank');
+      showToast('💡 Insira uma Anthropic API Key para busca com IA!');
+    }, 600);
+    return;
+  }
+
+  // Estado de carregamento
   icon.className = 'spinning';
-  setTimeout(() => {
+  btn.disabled = true;
+  btnLabel.textContent = 'Consultando Claude AI...';
+  document.getElementById('trendList').innerHTML = `
+    <div style="text-align:center;padding:28px 10px;color:var(--gold)">
+      <div style="font-size:1.4rem;margin-bottom:10px" class="spinning">🧠</div>
+      <div style="font-size:.78rem;letter-spacing:1px">Gerando novas trends com IA...</div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:6px">Isso leva alguns segundos</div>
+    </div>`;
+
+  const systemPrompt = `Você é um especialista em estratégia de conteúdo para Instagram no nicho de luciferianismo, ocultismo e espiritualidade sombria. Você conhece profundamente o perfil @o.sombral e o estilo de conteúdo que performa bem nesse nicho em 2026.`;
+
+  const userPrompt = `Gere 3 novas ideias de trends/temas de conteúdo viral para o perfil @o.sombral no Instagram (nicho: luciferianismo, ocultismo, magia sombria, entidades).
+
+As trends devem:
+- Ser únicas e diferentes das já existentes no nicho
+- Ter alto potencial de engajamento (salvar, comentar, compartilhar)
+- Abordar temas como: entidades, rituais, filosofia luciferiana, sinais, despertar, magia prática, qliphoth, etc.
+- Ter um gancho forte e provocativo
+
+Retorne SOMENTE um array JSON válido, sem markdown, sem explicação, apenas o JSON puro:
+[
+  {
+    "title": "Título da trend (curto, impactante)",
+    "cat": "conceito",
+    "badge": "hot",
+    "score": 88,
+    "viralScore": {"hook": 85, "legenda": 82, "visual": 80},
+    "keys": ["palavra-chave1", "palavra-chave2", "palavra-chave3"],
+    "hooks": [
+      "GANCHO EM MAIÚSCULAS — chamada forte.\\nFrase de apoio curta.\\n(explico na legenda 👇)",
+      "Segundo gancho com {N} pontos.\\nComplemento.\\n(veja na legenda 👇)",
+      "Terceiro gancho variado.\\nOutra abordagem.\\n👇"
+    ],
+    "legenda": "Legenda para Instagram com emojis, estrutura numerada, chamada para ação e tom luciferiano/ocultista. MÁXIMO 150 palavras. Seja direto e impactante.",
+    "tags": ["#luciferianismo", "#ocultismo", "#osombral", "#magiasombria", "#esoterismo"]
+  }
+]
+
+Os valores de "cat" devem ser um de: conceito, pratica, sinais, despertar, entidades
+Os valores de "badge" devem ser um de: hot, trend, new`;
+
+  try {
+    // Timeout de 25 segundos para evitar tela travada
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+    let res;
+    try {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 6000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+    } catch(fetchErr) {
+      clearTimeout(timeoutId);
+      if (fetchErr.name === 'AbortError') throw new Error('TIMEOUT: a requisição demorou mais de 25s.');
+      throw new Error('CORS/REDE: ' + fetchErr.message + ' — Tente no desktop ou abra o arquivo local.');
+    }
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    let text = data.content[0].text.trim();
+    console.log('Anthropic raw response:', text);
+
+    // Extração robusta: pega tudo entre o primeiro [ e o último ]
+    // Ignora markdown, texto antes/depois, ``` etc.
+    let jsonText = text;
+    const firstBracket = text.indexOf('[');
+    const lastBracket  = text.lastIndexOf(']');
+    if (firstBracket !== -1 && lastBracket > firstBracket) {
+      jsonText = text.slice(firstBracket, lastBracket + 1);
+    }
+
+    let newTrends;
+    try {
+      newTrends = JSON.parse(jsonText);
+    } catch(parseErr) {
+      console.error('JSON parse error:', parseErr, '\nText was:', jsonText);
+      document.getElementById('trendList').innerHTML = `
+        <div style="background:rgba(200,30,0,.12);border:1px solid rgba(200,30,0,.3);border-radius:8px;padding:12px;font-size:.75rem;color:#ff8877;line-height:1.6;margin-top:8px">
+          <strong>❌ Erro ao processar resposta da IA</strong><br><br>
+          Verifique o console do navegador (F12) para detalhes.<br><br>
+          <span style="color:var(--muted)">Resposta recebida:</span><br>
+          <span style="font-family:monospace;font-size:.65rem;word-break:break-all">${text.substring(0,300)}...</span>
+        </div>`;
+      filtered = [...TRENDS];
+      renderTrends();
+      return;
+    }
+
+    if (!Array.isArray(newTrends) || newTrends.length === 0) throw new Error('Array vazio ou inválido na resposta');
+
+    // Atribui IDs únicos e adiciona ao array
+    const maxId = Math.max(...TRENDS.map(t => t.id), 100);
+    newTrends.forEach((t, i) => {
+      t.id = maxId + i + 1;
+      t.aiGenerated = true; // marca visualmente como gerada por IA
+      if (!t.viralScore) t.viralScore = { hook: t.score||82, legenda: t.score||82, visual: t.score||80 };
+      if (!t.keys) t.keys = [];
+      if (!t.tags) t.tags = ['#luciferianismo','#osombral','#ocultismo','#magiasombria','#esoterismo'];
+      if (!t.hooks || !Array.isArray(t.hooks)) t.hooks = [`${t.title.toUpperCase()}.\nDescubra o que ninguém te conta.\n(legenda completa 👇)`];
+      if (!t.legenda) t.legenda = `Conteúdo sobre: ${t.title}\n\nSiga @o.sombral para mais!`;
+      TRENDS.unshift(t);
+    });
+
+    filtered = [...TRENDS];
+    renderTrends();
+    showToast(`✨ ${newTrends.length} novas trends geradas pela IA!`);
+
+  } catch(e) {
+    console.error('Anthropic API error:', e);
+    const msg = e.message || 'Erro desconhecido';
+    document.getElementById('trendList').innerHTML = `
+      <div style="background:rgba(200,30,0,.12);border:1px solid rgba(200,30,0,.3);border-radius:8px;padding:14px;font-size:.76rem;color:#ff8877;line-height:1.7;margin-top:8px">
+        <strong>❌ Falha na busca com IA</strong><br><br>
+        ${msg.includes('401') || msg.includes('auth') ? '🔑 <strong>Chave inválida</strong> — verifique sua Anthropic API Key.' :
+          msg.includes('403') ? '🚫 <strong>Acesso negado</strong> — a chave pode não ter permissão.' :
+          msg.includes('429') ? '⏳ <strong>Limite atingido</strong> — aguarde alguns segundos e tente novamente.' :
+          msg.includes('Failed to fetch') || msg.includes('NetworkError') ? '🌐 <strong>Erro de rede/CORS</strong> — tente abrir em outro navegador ou desktop.' :
+          '⚠️ ' + msg.substring(0, 120)}
+        <br><br>
+        <span style="color:var(--muted);font-size:.68rem">Veja o console (F12) para detalhes completos.</span><br><br>
+        <button onclick="filtered=[...TRENDS];renderTrends()" style="background:transparent;border:1px solid rgba(200,30,0,.4);color:#ff8877;border-radius:6px;padding:6px 14px;font-size:.72rem;cursor:pointer">✕ Fechar e ver lista</button>
+      </div>`;
+  } finally {
     icon.className = '';
-    window.open('https://www.google.com/search?q=luciferianismo+ocultismo+instagram+reels+viral+2026+tendencias','_blank');
-    showToast('🌐 Pesquisa aberta no navegador!');
-  }, 800);
+    btn.disabled = false;
+    btnLabel.textContent = 'Buscar Novas Trends com IA';
+  }
 }
 
 // ═══════════════════════════════════════════
